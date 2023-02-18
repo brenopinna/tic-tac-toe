@@ -2,56 +2,45 @@ const startButton = document.getElementById("start")
 const turnText = document.getElementById("turn")
 const boardHouses = document.querySelectorAll(".board-house")
 
-let gameStarted = false
-let won = false
 let turnPlayer
 let xPlayer, oPlayer
 
-startButton.addEventListener("click", startGame)
-
-boardHouses.forEach(boardHouse => {
-  boardHouse.addEventListener("mouseenter", () => {
-    if (!gameStarted || boardHouse.dataset.symble) return
-    boardHouse.innerText = turnPlayer.symble
-  })
-  boardHouse.addEventListener("mouseleave", () => {
-    if (!gameStarted || boardHouse.dataset.symble) return
-    boardHouse.innerText = ""
-  })
-  boardHouse.addEventListener("click", () => {
-    if (!gameStarted || boardHouse.dataset.symble !== undefined) return
-    insertSymble(boardHouse)
-    if (checkWin()) {
-      endGame(`${turnPlayer.name} venceu!`)
-    } else if (checkTie()) {
-      endGame("Deu velha!!!")
-    }
-    if (won) return
-    changeTurnPlayer()
-  })
-})
-
-function startGame() {
-  gameStarted = true
-  won = false
+startButton.addEventListener("click", () => {
   boardHouses.forEach(house => {
     house.style.backgroundColor = "white"
-    house.removeAttribute("data-symble")
     house.innerText = ""
+    house.style.cursor = "pointer"
+    house.removeAttribute("data-symble")
+    house.addEventListener("click", handleClick)
+    house.addEventListener("mouseenter", handleHover)
+    house.addEventListener("mouseleave", handleBlur)
   })
   xPlayer = { name: prompt("Qual o nome do jogador 1 (X)?") || "X", symble: "X" }
   oPlayer = { name: prompt("Qual o nome do jogador 2 (O)?") || "O", symble: "O" }
   turnPlayer = xPlayer
-  showTurnPlayer()
-}
-
-function showTurnPlayer() {
   turnText.innerText = `Jogador da vez: ${turnPlayer.name}`
+})
+
+function handleClick(e) {
+  e.target.dataset.symble = turnPlayer.symble
+  e.target.innerText = turnPlayer.symble
+  freezeBoardHouse(e.target)
+  if (checkWin()) {
+    freezeGame(`${turnPlayer.name} venceu!`)
+    return
+  } else if (checkTie()) {
+    freezeGame("Deu velha!!!")
+    return
+  }
+  changeTurnPlayer()
 }
 
-function insertSymble(house) {
-  house.dataset.symble = turnPlayer.symble
-  house.innerText = turnPlayer.symble
+function handleHover(e) {
+  e.target.innerText = turnPlayer.symble
+}
+
+function handleBlur(e) {
+  e.target.innerText = ""
 }
 
 function checkWin() {
@@ -82,12 +71,6 @@ function checkTie() {
     .every(symble => symble !== undefined)
 }
 
-function endGame(text) {
-  turnText.innerText = text
-  gameStarted = false
-  won = true
-}
-
 function isTurnPlayerSymbol(houseIndex) {
   return boardHouses[houseIndex].dataset.symble === turnPlayer.symble
 }
@@ -95,5 +78,16 @@ function isTurnPlayerSymbol(houseIndex) {
 function changeTurnPlayer() {
   turnPlayer = turnPlayer === xPlayer ? oPlayer : xPlayer
   turnText.innerText = `Jogador da vez: ${turnPlayer.name}`
-  showTurnPlayer()
+}
+
+function freezeGame(text) {
+  turnText.innerText = text
+  boardHouses.forEach(house => freezeBoardHouse(house))
+}
+
+function freezeBoardHouse(house) {
+  house.removeEventListener("click", handleClick)
+  house.removeEventListener("mouseenter", handleHover)
+  house.removeEventListener("mouseleave", handleBlur)
+  house.style.cursor = "not-allowed"
 }
