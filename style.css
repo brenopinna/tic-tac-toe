@@ -42,12 +42,7 @@ main {
   align-items: center;
   font-size: 4rem;
   font-weight: bold;
-  cursor: pointer;
   background-color: white;
-}
-
-.board-house[data-symble] {
-  cursor: not-allowed;
 }
 
 #start {
