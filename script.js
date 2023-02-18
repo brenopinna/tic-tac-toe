@@ -35,6 +35,7 @@ function startGame() {
   gameStarted = true
   won = false
   boardHouses.forEach(house => {
+    house.style.backgroundColor = "white"
     house.removeAttribute("data-symble")
     house.innerText = ""
   })
@@ -67,6 +68,9 @@ function checkWin() {
 
   for (let match of winMatches) {
     if (match.map(index => isTurnPlayerSymbol(index)).every(match => match === true)) {
+      for (let index of match) {
+        boardHouses[index].style.backgroundColor = "green"
+      }
       return true
     }
   }
