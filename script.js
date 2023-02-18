@@ -21,7 +21,11 @@ boardHouses.forEach(boardHouse => {
   boardHouse.addEventListener("click", () => {
     if (!gameStarted || boardHouse.dataset.symble !== undefined) return
     insertSymble(boardHouse)
-    checkWin()
+    if (checkWin()) {
+      endGame(`${turnPlayer.name} venceu!`)
+    } else if (checkTie()) {
+      endGame("Deu velha!!!")
+    }
     if (won) return
     changeTurnPlayer()
   })
@@ -61,13 +65,23 @@ function checkWin() {
     [2, 4, 6],
   ]
 
-  winMatches.forEach(match => {
+  for (let match of winMatches) {
     if (match.map(index => isTurnPlayerSymbol(index)).every(match => match === true)) {
-      turnText.innerText = `${turnPlayer.name} venceu!`
-      gameStarted = false
-      won = true
+      return true
     }
-  })
+  }
+}
+
+function checkTie() {
+  return Array.from(boardHouses)
+    .map(house => house.dataset.symble)
+    .every(symble => symble !== undefined)
+}
+
+function endGame(text) {
+  turnText.innerText = text
+  gameStarted = false
+  won = true
 }
 
 function isTurnPlayerSymbol(houseIndex) {
